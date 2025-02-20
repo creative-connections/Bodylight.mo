@@ -650,11 +650,11 @@ package Osmotic "Please use 'Chemical' library instead!"
 <p><h4><font color=\"#008000\">Hydraulic Reabsorption</font></h4></p>
 <p>If useOutflowMin=false then the next schema is used.</p>
 <p><ul>
-<li><img src=\"modelica://Physiolibrary/Resources/Images/UserGuide/HydraulicReabsorption.png\"/></li>
+<li><img src=\"modelica://Bodylight/Resources/Images/UserGuide/HydraulicReabsorption.png\"/></li>
 </ul></p>
 <p><br/>If  useOutflowMin=true then the extended schema is used:</p>
 <p><ul>
-<li><img src=\"modelica://Physiolibrary/Resources/Images/UserGuide/HydraulicReabsorptionWithOutflowMin.png\"/></li>
+<li><img src=\"modelica://Bodylight/Resources/Images/UserGuide/HydraulicReabsorptionWithOutflowMin.png\"/></li>
 </ul></p>
 </html>"));
     end Reabsorption;

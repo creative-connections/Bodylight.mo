@@ -1596,7 +1596,7 @@ package Hydraulic "Domain with Pressure and Volumetric Flow"
 <li>Decreasing volume below CollapsingPressureVolume (V00) generate negative pressure (lower than external pressure) logarithmicaly dependent on volume.</li>
 <li>Otherwise external pressure is presented as pressure inside ElasticVessel.</li>
 </ul>
-<p><br><img src=\"modelica://Physiolibrary/Resources/Images/UserGuide/ElasticVessel_PV.png\"/></p>
+<p><br><img src=\"modelica://Bodylight/Resources/Images/UserGuide/ElasticVessel_PV.png\"/></p>
 </html>"));
     end ElasticVessel;
 
@@ -1982,11 +1982,11 @@ package Hydraulic "Domain with Pressure and Volumetric Flow"
 <p><h4><font color=\"#008000\">Hydraulic Reabsorption</font></h4></p>
 <p>If useOutflowMin=false then the next schema is used.</p>
 <p><ul>
-<li><img src=\"modelica://Physiolibrary/Resources/Images/UserGuide/HydraulicReabsorption.png\"/></li>
+<li><img src=\"modelica://Bodylight/Resources/Images/UserGuide/HydraulicReabsorption.png\"/></li>
 </ul></p>
 <p><br/>If  useOutflowMin=true then the extended schema is used:</p>
 <p><ul>
-<li><img src=\"modelica://Physiolibrary/Resources/Images/UserGuide/HydraulicReabsorptionWithOutflowMin.png\"/></li>
+<li><img src=\"modelica://Bodylight/Resources/Images/UserGuide/HydraulicReabsorptionWithOutflowMin.png\"/></li>
 </ul></p>
 </html>"));
     end Reabsorption;
