@@ -36,8 +36,10 @@ Library contains also the icons for higher level (HumMod) subsystem implementati
 
 Download [Bodylight.mo](https://github.com/creative-connections/Bodylight.mo)
 
-## Upgrading from Physiolibrary 2.4.x
-Use [Bodylight\Resources\Conversions\](https://github.com/creative-connections/Bodylight/Resources/Conversions/UpdatePhysiolibrary2.4ToBodylight1.0.bat) to simply rename Physiolibrary 2.4.x to Bodylight 1.0. Just place this into root of your project and run.
+## Upgrading from Physiolibrary 2.4.x to Bodylight 1.0
+In Dymola, run a conversion script "Bodylight/Resources/Conversions/ConvertFromPhysiolibrary_2.4.1.mos" prior to loading your project. Project will be convertet to Bodylight on load.
+
+Alternatively, use [Bodylight\Resources\Conversions\](https://github.com/creative-connections/Bodylight/Resources/Conversions/UpdatePhysiolibrary2.4ToBodylight1.0.bat) to simply rename Physiolibrary 2.4.x to Bodylight 1.0. Just place this into root of your project and run.
 
 ## Release notes
 

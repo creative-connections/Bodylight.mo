@@ -3,15 +3,13 @@ package Bodylight "Modelica library for Physiology (version 1.0)"
  extends Modelica.Icons.Package;
 
   annotation (preferredView="info",
-version="2.4.1",
-versionDate="2020-02-19",
-dateModified = "2020-03-20 12:49:00Z",
+version="1.0",
+versionDate="2025-02-20",
+dateModified = "2025-02-20 12:49:00Z",
 revisionId="",
 uses(Modelica(version="4.0.0")),
 conversion(
-  from(version="BioChem-1.0.1", script="modelica://Bodylight/Resources/Scripts/Dymola/ConvertBioChem_1.0.1_to_Physiolibrary_2.3.mos",
-        to="2.4.0"),
-      from(version={"2.4.0","2.3.1"}, script="modelica://Bodylight/Resources/Scripts/ConvertFromPhysiolibrary_2.4.0.mos")),
+      from(version="Physiolibrary-2.4.1", script="Resources/Scripts/ConvertFromPhysiolibrary_2.4.1.mos")),
   Documentation(revisions="<html>
 <p>Copyright (c) 2008-2015, Marek Matej&aacute;k, Charles University in Prague </p>
 <p>All rights reserved. </p>
