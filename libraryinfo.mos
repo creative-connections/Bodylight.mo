@@ -1,0 +1,10 @@
+LibraryInfoMenuCommand(
+  iconName="Resources/Icons/golem.png",
+  category="libraries",
+  text="Bodylight.mo",
+  reference="Bodylight",
+  version="1.0.0",
+  isModel=true,
+  description="Physiology modeling",
+  ModelicaVersion=">=4.0.0",
+  pos=111)
