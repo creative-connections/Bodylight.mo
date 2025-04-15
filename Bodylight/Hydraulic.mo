@@ -1186,13 +1186,15 @@ package Hydraulic "Domain with Pressure and Volumetric Flow"
           useChatteringProtection=true,
           useLimitationInputs=false)
           annotation (Placement(transformation(extent={{184,76},{208,52}})));
+        replaceable
         Parts.AtrialElastance LAtrialElastance(
           Tav(displayUnit="s"),
           EMIN=15998686.4898,
-          EMAX=37330268.4762)
+          EMAX=37330268.4762) constrainedby Parts.HeartIntervals
           annotation (Placement(transformation(extent={{80,92},{118,124}})));
+        replaceable
         Parts.VentricularElastance LVentricularElastance(EMIN=11999014.86735,
-            EMAX=533289549.66)
+            EMAX=533289549.66) constrainedby Parts.HeartIntervals
           annotation (Placement(transformation(extent={{164,88},{200,120}})));
         Bodylight.Hydraulic.Components.IdealValveResistance MitralValve(
           _Goff(displayUnit="ml/(mmHg.s)") = 0,
@@ -1292,11 +1294,13 @@ package Hydraulic "Domain with Pressure and Volumetric Flow"
           useChatteringProtection=true,
           useLimitationInputs=false)
           annotation (Placement(transformation(extent={{-132,70},{-106,44}})));
+        replaceable
         Parts.AtrialElastance RAtrialElastance(EMIN=6666119.37075, EMAX=
-              19998358.11225)
+              19998358.11225) constrainedby Parts.HeartIntervals
           annotation (Placement(transformation(extent={{-244,86},{-206,118}})));
+        replaceable
         Parts.VentricularElastance RVentricularElastance(EMIN=7599376.082655,
-            EMAX=65327969.83335)
+            EMAX=65327969.83335) constrainedby Parts.HeartIntervals
           annotation (Placement(transformation(extent={{-180,88},{-150,122}})));
         Bodylight.Hydraulic.Components.IdealValveResistance TricuspidValve(
           _Goff=0,
@@ -1475,8 +1479,7 @@ package Hydraulic "Domain with Pressure and Volumetric Flow"
       parameter Bodylight.Types.HydraulicResistance Resistance=0
         "Hydraulic conductance if useConductanceInput=false"
         annotation (Dialog(enable=not useConductanceInput));
-    protected
-                final parameter Bodylight.Types.HydraulicConductance conditionalConductance=if
+    protected   final parameter Bodylight.Types.HydraulicConductance conditionalConductance=if
           useConductanceInput or Resistance == 0 then Modelica.Constants.inf
            else 1/Resistance;
     end Resistor;
