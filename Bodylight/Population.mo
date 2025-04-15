@@ -1,7 +1,11 @@
-﻿within Bodylight;
+within Bodylight;
 package Population
   "Domain for populatiom models for cells, viruses, bacterias, tissues, organism etc."
   extends Modelica.Icons.Package;
+package UniformPopulation "Models state transition of an uniform population"
+ extends Modelica.Icons.Package;
+
+
   package Examples "Examples that demonstrate usage of the Population models"
      extends Modelica.Icons.ExamplesPackage;
 
@@ -769,4 +773,248 @@ Connector with one flow signal of type Real.
 </ol>
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 </html>"));
+end UniformPopulation;
+
+  package LabeledPopulation
+    "Population with a label, able to trace the label among states"
+    package Examples
+      extends Modelica.Icons.ExamplesPackage;
+      model Test
+        extends Modelica.Icons.Example;
+        Components.StateCompartment A(
+          pop_start(displayUnit="mol") = 0.5,
+          nPorts=2,
+          initialLabel=1.0)
+          annotation (Placement(transformation(extent={{-60,0},{-40,20}})));
+        Components.StateTransition stateTransition(k=1, useDynamicFlowLabeling=false)
+          annotation (Placement(transformation(extent={{-20,-24},{0,-4}})));
+        Components.StateCompartment B(pop_start(displayUnit="mol") = 0.5,
+            nPorts=2)
+          annotation (Placement(transformation(extent={{40,0},{20,20}})));
+        Components.StateTransition stateTransition1(
+          k=0.1,
+          useDynamicFlowLabeling=true,
+          labelIn=time > 1 and time < 2) annotation (Placement(transformation(
+              extent={{-10,-10},{10,10}},
+              rotation=180,
+              origin={-10,-8})));
+      equation
+        connect(A.lpop[1], stateTransition.lpop_a) annotation (Line(points={{-40.2,
+                0.15},{-40,0.15},{-40,-14},{-20,-14}}, color={0,0,0}));
+        connect(stateTransition.lpop_b, B.lpop[1]) annotation (Line(points={{0,
+                -14},{20,-14},{20,0.15},{20.2,0.15}}, color={0,0,0}));
+        connect(stateTransition1.lpop_b, A.lpop[2]) annotation (Line(points={{-20,
+                -8},{-40.2,-8},{-40.2,0.65}}, color={0,0,0}));
+        connect(stateTransition1.lpop_a, B.lpop[2]) annotation (Line(points={{0,
+                -8},{20.2,-8},{20.2,0.65}}, color={0,0,0}));
+        annotation (experiment(StopTime=10, __Dymola_Algorithm="Dassl"));
+      end Test;
+    end Examples;
+
+    package Components
+
+
+      model StateCompartment
+
+        parameter Integer nPorts=0 "Number of ports"
+          annotation(Evaluate=true, Dialog(connectorSizing=true, tab="General",group="Ports"));
+
+        Interfaces.LPop_a lpop[nPorts]
+          annotation (Placement(transformation(extent={{88,-106},{108,-86}})));
+        parameter Types.Population pop_start=1e-9;
+        Types.Population pop(start=pop_start);
+              Real labelAmount;
+              Real labelFlows[nPorts];
+              parameter Real initialLabel = 0;
+      initial equation
+        labelAmount =pop*initialLabel;
+      equation
+        for i in 1:nPorts loop
+          lpop[i].population = pop;
+          labelFlows[i] =actualStream(lpop[i].label)*lpop[i].change;
+          lpop[i].label = labelAmount/pop;
+        end for;
+        der(pop) = sum(lpop.change);
+        der(labelAmount) = sum(labelFlows);
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+              Rectangle(
+                extent={{-100,100},{100,-100}},
+                lineColor={107,45,134},
+                lineThickness=1,
+                fillColor={255,255,255},
+                fillPattern=FillPattern.Solid),
+              Text(
+                extent={{-100,-40},{100,80}},
+                textColor={107,45,134},
+                textString="%name"),
+              Text(
+                extent={{-100,-100},{100,-60}},
+                textColor={107,45,134},
+                textString="State")}),                                 Diagram(
+              coordinateSystem(preserveAspectRatio=false)));
+
+      end StateCompartment;
+
+      model StateTransition
+        extends Interfaces.OnePort;
+
+        parameter Real k = 0;
+        Types.PopulationChange rate;
+
+        parameter Boolean allowReverse = true;
+        parameter Boolean useRateInput = false;
+        parameter Boolean useDynamicFlowLabeling=false
+          annotation (choices(checkBox=true));
+        Boolean labelIn=false
+          "When the outflow should be fully labeled. Accepts an expression."
+          annotation (Dialog(group="Time varying boolean signal", enable=
+                useDynamicFlowLabeling));
+        Boolean labelOut=false
+          "When the outflow should be fully unlabeled. Accepts an expression."
+          annotation (Dialog(group="Time varying boolean signal", enable=
+                useDynamicFlowLabeling));
+
+        Types.RealIO.PopulationChangeInput rateInput = rate if useRateInput annotation (Placement(transformation(
+                extent={{-120,-60},{-80,-20}}), iconTransformation(extent={{-120,
+                  -60},{-80,-20}})));
+
+      equation
+        if not useRateInput then
+          rate = k;
+        end if;
+        // preferred direction
+        lpop_b.label = if labelIn then 1 elseif labelOut then 0 else inStream(
+          lpop_a.label);
+
+        // should not happen
+        lpop_a.label = if labelIn then 1 elseif labelOut then 0 else inStream(
+          lpop_b.label);
+
+        lpop_a.change = if allowReverse or lpop_a.population > lpop_b.population
+           then lpop_a.population*rate else 0;
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={Polygon(
+                points={{-70,-102},{-50,-82},{-30,-62},{-10,-42},{0,-32},{10,-42},{62,
+                    -94},{68,-88},{70,-112},{44,-106},{52,-100},{0,-50},{-62,-108},{-62,
+                    -102},{-70,-102}},
+                lineColor={107,45,134},
+                lineThickness=1,
+                fillColor={255,255,255},
+                fillPattern=FillPattern.Solid, visible = DynamicSelect(useDynamicFlowLabeling, useDynamicFlowLabeling and (labelIn or labelOut))), Polygon(
+                points={{-80,-30},{40,-30},{40,-30},{40,-50},{80,-20},{-80,-20},{-74,-26},
+                    {-80,-30}},
+                lineColor={107,45,134},
+                lineThickness=1,
+                fillColor={102,44,145},
+                fillPattern=FillPattern.Solid),
+              Text(
+                extent={{-100,-20},{102,20}},
+                textColor={107,45,134},
+                textString="%name")}),
+                                Diagram(coordinateSystem(preserveAspectRatio=false)));
+
+      end StateTransition;
+
+      model ChangeMeasure "Change flow between ports"
+        extends Interfaces.OnePort;
+        //extends Icons.FlowMeasure;
+        extends Modelica.Icons.RoundSensor;
+
+        Types.RealIO.PopulationChangeOutput change "Actual volume flow rate"
+                               annotation (Placement(transformation(extent={{-20,-20},
+                  {20,20}},
+              rotation=270,
+              origin={0,-60}), iconTransformation(
+              extent={{-20,-20},{20,20}},
+              rotation=90,
+              origin={0,120})));
+        Types.RealIO.FractionOutput label "Actual label" annotation (Placement(transformation(extent={{-20,-20},
+                  {20,20}},
+              rotation=270,
+              origin={0,-60}), iconTransformation(
+              extent={{-20,-20},{20,20}},
+              rotation=0,
+              origin={-100,40})));
+      equation
+        lpop_a.population = lpop_b.population;
+        change = lpop_a.change;
+
+        if lpop_a.change >= 0 then
+          // already passed by InStream in parent
+          label = lpop_b.label;
+        else
+          label = lpop_a.label;
+        end if;
+        lpop_a.label = inStream(lpop_b.label);
+        lpop_b.label = inStream(lpop_a.label);
+
+        annotation (
+          Documentation(revisions="<html>
+<p><i>2009-2010</i></p>
+<p>Marek Matejak, Charles University, Prague, Czech Republic </p>
+</html>"),       Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+                  -100},{100,100}}),
+                               graphics={
+              Line(
+                points={{-60,80},{80,80},{62,60}},
+                color={0,0,255}),
+              Line(
+                points={{62,100},{80,80}},
+                color={0,0,255}),
+              Text(
+                extent={{-34,12},{52,-70}},
+                lineColor={0,0,0},
+                textString="Pop'")}));
+      end ChangeMeasure;
+    end Components;
+
+    package Interfaces
+        extends Modelica.Icons.InterfacesPackage;
+
+
+      partial connector LabeledPopulationPort
+        Types.Population population;
+        flow Types.PopulationChange change(displayUnit="1/s");
+        stream Types.Fraction label;
+        annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+              coordinateSystem(preserveAspectRatio=false), graphics={Rectangle(
+                extent={{-100,100},{100,-100}},
+                lineColor={107,45,134},
+                lineThickness=1,
+                fillColor={255,255,255},
+                fillPattern=FillPattern.Solid)}));
+      end LabeledPopulationPort;
+
+      connector LPop_a
+        extends LabeledPopulationPort;
+        annotation (Icon(graphics={
+                Rectangle(
+                extent={{-100,100},{100,-100}},
+                lineColor={107,45,134},
+                lineThickness=1,
+                fillColor={102,44,145},
+                fillPattern=FillPattern.Solid)}));
+      end LPop_a;
+
+      connector LPop_b
+        extends LabeledPopulationPort;
+        annotation (Icon(graphics={
+                Rectangle(
+                extent={{-100,100},{100,-100}},
+                lineColor={107,45,134},
+                lineThickness=1,
+                fillColor={255,255,255},
+                fillPattern=FillPattern.Solid)}));
+      end LPop_b;
+
+      partial model OnePort
+        LPop_a lpop_a
+          annotation (Placement(transformation(extent={{-110,-10},{-90,10}})));
+        LPop_b lpop_b
+          annotation (Placement(transformation(extent={{90,-10},{110,10}})));
+
+      equation
+        lpop_a.change + lpop_b.change = 0;
+      end OnePort;
+    end Interfaces;
+  end LabeledPopulation;
 end Population;
