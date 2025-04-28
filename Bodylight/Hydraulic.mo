@@ -2372,7 +2372,7 @@ Connector with one flow signal of type Real.
 
       parameter Types.VolumeFlowRate SolutionFlow=0
         "Volumetric flow of solution if useSolutionFlowInput=false"
-        annotation ( HideResult=not useSolutionFlowInput, Dialog(enable=not useSolutionFlowInput));
+        annotation ( HideResult=useSolutionFlowInput, Dialog(enable=not useSolutionFlowInput));
 
       Types.RealIO.VolumeFlowRateInput solutionFlow(start=SolutionFlow)=q if useSolutionFlowInput annotation (Placement(transformation(
             extent={{-20,-20},{20,20}},
