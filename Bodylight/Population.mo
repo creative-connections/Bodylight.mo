@@ -72,7 +72,7 @@ package UniformPopulation "Models state transition of an uniform population"
           points={{42,-18},{42,-26}},
           color={0,0,127}));
       annotation (
-        experiment(StopTime=20),
+        experiment(StopTime = 20, StartTime = 0, Tolerance = 1e-06, Interval = 0.04),
         __Dymola_experimentSetupOutput(equdistant=false));
     end PredatorPrey;
 
@@ -106,22 +106,21 @@ package UniformPopulation "Models state transition of an uniform population"
       annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
             coordinateSystem(preserveAspectRatio=false)));
     end testChangeDivider;
-
-    package dev
-      model Covid_SEIRS "A simple model replicating the Python implementation in https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296 "
-
-        Bodylight.Population.Components.Population Susceptible(population_start
+      
+      model Covid_SEIRS "A compartmental model of COVID infection using demo social distancing factor, contact rate"
+      extends Modelica.Icons.Example;
+        Population.UniformPopulation.Components.Population Susceptible(population_start
             =1) "Susceptible population"
           annotation (Placement(transformation(extent={{-100,30},{-80,50}})));
-        Bodylight.Population.Components.Population Exposed
+        Population.UniformPopulation.Components.Population Exposed
           annotation (Placement(transformation(extent={{-48,30},{-28,50}})));
-        Bodylight.Population.Components.Population Infectious(population_start=
+        Population.UniformPopulation.Components.Population Infectious(population_start=
               1e-4)
           annotation (Placement(transformation(extent={{26,30},{6,50}})));
-        Bodylight.Population.Components.Stream Stream(LifeTime(displayUnit="s")
+        Population.UniformPopulation.Components.Stream Stream(LifeTime(displayUnit="s")
              = t_incubation)
           annotation (Placement(transformation(extent={{-20,30},{0,50}})));
-        Bodylight.Population.Components.Population Sick
+        Population.UniformPopulation.Components.Population Sick
           annotation (Placement(transformation(extent={{80,30},{100,50}})));
         parameter Real alpha=1/t_incubation "inverse of the incubation period";
         parameter Real beta=1.75 "average contact rate";
@@ -133,8 +132,8 @@ package UniformPopulation "Models state transition of an uniform population"
         parameter Types.Fraction mortality_treated=0.05   "Mortality of treated severe cases";
         parameter Types.Fraction mortality_unhospitalized=0.005   "Mortality of apparently mild cases, which does not require hospitalization";
         parameter Real first_seen=10 "first measured ill patients";
-
-        Bodylight.Population.Components.Stream infection(
+      
+        Population.UniformPopulation.Components.Stream infection(
             useChangePerMemberInput=true)
           annotation (Placement(transformation(extent={{-74,30},{-54,50}})));
         Modelica.Blocks.Math.Gain gain(k=beta)
@@ -143,7 +142,7 @@ package UniformPopulation "Models state transition of an uniform population"
               displayUnit="s") = t_infectious, num_outflows=1,
                    ratios=zeros(0))
           annotation (Placement(transformation(extent={{32,30},{52,50}})));
-        Bodylight.Population.Components.Population Recovered
+        Population.UniformPopulation.Components.Population Recovered
           annotation (Placement(transformation(extent={{50,-100},{70,-80}})));
         Components.StreamWithDivider               streamWithDivider1(
                                                            LifeTime(displayUnit="s")=
@@ -161,7 +160,7 @@ package UniformPopulation "Models state transition of an uniform population"
           extrapolation=Modelica.Blocks.Types.Extrapolation.HoldLastPoint,
                                                              startTime=first_seen)
           annotation (Placement(transformation(extent={{-94,-22},{-74,-2}})));
-
+      
         Modelica.Blocks.Sources.TimeTable data_dead(table=[0,0],
                                                     startTime=first_seen)
           annotation (Placement(transformation(extent={{-94,-94},{-74,-74}})));
@@ -206,18 +205,20 @@ package UniformPopulation "Models state transition of an uniform population"
             points={{60,-90},{90,-90},{90,-50}},
             color={0,127,127},
             thickness=1));
-        annotation (Documentation(info="<html>
-<p>As modelled in <a href=\"https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296\">https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296</a></p>
-</html>"));
+        annotation (Documentation(info = "<html>
+      <p>As modelled in <a href=\"https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296\">https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296</a></p>
+      </html>"),
+      experiment(StartTime = 0, StopTime = 30, Tolerance = 1e-06, Interval = 0.06));
       end Covid_SEIRS;
-
-      model Covid_SEIRS_Ext
-        extends Covid_SEIRS(streamWithDivider(num_outflows=2, ratios={1 - 0.1}),
+      
+      model Covid_SEIRS_Ext "A compartmental model of COVID infection using demo social distancing factor, contact rate extended by hospital capacity"
+        extends Modelica.Icons.Example;
+        extends dev.Covid_SEIRS(streamWithDivider(num_outflows=2, ratios={1 - 0.1}),
             streamWithDivider1(num_outflows=2, ratios={1 - 0.05}));
-
-        Bodylight.Population.Components.Population admittance
+      
+        Population.UniformPopulation.Components.Population admittance
           annotation (Placement(transformation(extent={{34,-10},{54,10}})));
-        Bodylight.Population.Components.Population Dead
+        Population.UniformPopulation.Components.Population Dead
           annotation (Placement(transformation(extent={{50,-70},{70,-50}})));
         parameter Real alpha=1/t_incubation "inverse of the incubation period";
         parameter Real beta=1.75 "average contact rate";
@@ -229,10 +230,10 @@ package UniformPopulation "Models state transition of an uniform population"
         parameter Types.Fraction mortality_treated=0.05   "Mortality of treated severe cases";
         parameter Types.Fraction mortality_unhospitalized=0.005   "Mortality of apparently mild cases, which does not require hospitalization";
         parameter Real first_seen=10 "first measured ill patients";
-
-        Bodylight.Population.Components.Population Recovered
+      
+        Population.UniformPopulation.Components.Population Recovered
           annotation (Placement(transformation(extent={{50,-100},{70,-80}})));
-
+      
         Components.StreamWithDivider               streamWithDivider2(LifeTime(
               displayUnit="s") = 10, ratios={1 - mortality_untreated})
                    annotation (Placement(transformation(
@@ -306,13 +307,12 @@ package UniformPopulation "Models state transition of an uniform population"
         connect(data_positive.y[1], relative_population.u)
           annotation (Line(points={{-73,-12},{-65.2,-12}}, color={0,0,127}));
         annotation (Documentation(info="<html>
-<p>As modelled in <a href=\"https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296\">https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296</a></p>
-</html>"), experiment(
+      <p>As modelled in <a href=\"https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296\">https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296</a></p>
+      </html>"), experiment(
             StopTime=100,
-            Tolerance=1e-09,
-            __Dymola_Algorithm="Dassl"));
+            Tolerance=1e-09, StartTime = 0, Interval = 0.060024));
       end Covid_SEIRS_Ext;
-
+      
       model HospitalCapacityLimit
         extends Interfaces.ConditionalLifeTime;
         Types.RealIO.PopulationInput population annotation (Placement(transformation(
@@ -327,9 +327,9 @@ package UniformPopulation "Models state transition of an uniform population"
               extent={{-20,-20},{20,20}},
               rotation=0,
               origin={100,0})));
-
+      
         parameter Types.Time t_hospital_stay;
-
+      
       parameter Types.Population hospitalLimit = 1e9;
       parameter Real k_att = 1000 "attentuation factor";
       Real overflow = (population - hospitalLimit);
@@ -341,7 +341,6 @@ package UniformPopulation "Models state transition of an uniform population"
         annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
               coordinateSystem(preserveAspectRatio=false)));
       end HospitalCapacityLimit;
-    end dev;
   end Examples;
 
   package Components
