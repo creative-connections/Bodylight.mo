@@ -211,9 +211,8 @@ package UniformPopulation "Models state transition of an uniform population"
       experiment(StartTime = 0, StopTime = 30, Tolerance = 1e-06, Interval = 0.06));
       end Covid_SEIRS;
       
-      model Covid_SEIRS_Ext "A compartmental model of COVID infection using demo social distancing factor, contact rate extended by hospital capacity"
-        extends Modelica.Icons.Example;
-        extends dev.Covid_SEIRS(streamWithDivider(num_outflows=2, ratios={1 - 0.1}),
+      model Covid_SEIRS_Ext "A compartmental model of COVID infection using demo social distancing factor, contact rate extended by hospital capacity"  
+        extends Covid_SEIRS(streamWithDivider(num_outflows=2, ratios={1 - 0.1}),
             streamWithDivider1(num_outflows=2, ratios={1 - 0.05}));
       
         Population.UniformPopulation.Components.Population admittance
